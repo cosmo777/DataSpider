@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
+using DataSpider.MemoryTools;
 
 namespace DataSpider
 {

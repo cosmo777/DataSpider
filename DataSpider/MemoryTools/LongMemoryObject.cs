@@ -86,15 +86,15 @@ namespace DataSpider.MemoryTools
                     }
                     return stringValue;
                 case DataType.Byte:
-                    return Memory.ReadBytes(BaseAddress, 1);
+                    return Memory.ReadBytes(BaseAddress + offset, 1)[0];
                 case DataType.Int:
-                    return BitConverter.ToInt32(Memory.ReadBytes(BaseAddress, 4), 0);
+                    return BitConverter.ToInt32(Memory.ReadBytes(BaseAddress + offset, 4), 0);
                 case DataType.Long:
-                    return BitConverter.ToInt64(Memory.ReadBytes(BaseAddress, 8), 0);
+                    return BitConverter.ToInt64(Memory.ReadBytes(BaseAddress + offset, 8), 0);
                 case DataType.Float:
-                    return BitConverter.ToSingle(Memory.ReadBytes(BaseAddress, 8), 0);
+                    return BitConverter.ToSingle(Memory.ReadBytes(BaseAddress + offset, 8), 0);
                 case DataType.UInt:
-                    return BitConverter.ToUInt32(Memory.ReadBytes(BaseAddress, 4), 0);
+                    return BitConverter.ToUInt32(Memory.ReadBytes(BaseAddress + offset, 4), 0);
             }
             return null;
         }

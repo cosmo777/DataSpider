@@ -41,6 +41,9 @@
     <Reference Include="MaterialDesignThemes.Wpf, Version=2.3.0.797, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignThemes.2.3.0-ci797\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="MoreLinq, Version=2.0.20029.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\packages\morelinq.2.2.0-beta-1\lib\net35\MoreLinq.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -68,12 +71,17 @@
     <Compile Include="MemoryTools\IntMemoryObject.cs" />
     <Compile Include="MemoryTools\LongMemoryObject.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="SearchTools\OffsetObject.cs" />
+    <Compile Include="SearchTools\SpiderMatch.cs" />
+    <Compile Include="SearchTools\SpiderMatcher.cs" />
+    <Compile Include="SearchTools\SpiderMatchSearchData.cs" />
+    <Compile Include="SearchTools\SpiderMatchValue.cs" />
     <Compile Include="SerializationTool.cs" />
     <Compile Include="SpiderControl.xaml.cs">
       <DependentUpon>SpiderControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SpiderResult.cs" />
-    <Compile Include="SpiderSearch.cs" />
+    <Compile Include="SearchTools\SpiderResult.cs" />
+    <Compile Include="SearchTools\SpiderSearch.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

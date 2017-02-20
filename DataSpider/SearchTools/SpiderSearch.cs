@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Documents;
 using DataSpider.Annotations;
 using DataSpider.MemoryTools;
+using DataSpider.Properties;
 
-namespace DataSpider
+namespace DataSpider.SearchTools
 {
     public class SpiderSearch : INotifyPropertyChanged
     {
@@ -30,7 +29,7 @@ namespace DataSpider
 
         public SpiderSearch()
         {
-            Results = new ObservableCollection<SpiderResult>();
+            Results = new List<SpiderResult>();
         }
 
         public string Name
@@ -209,39 +208,13 @@ namespace DataSpider
             }
         }
 
-        public ObservableCollection<SpiderResult> Results { get; set; }
+        public List<SpiderResult> Results { get; set; }
 
         public void Reload(Memory memory)
         {
             foreach (var spiderResult in Results)
             {
-                if (Is64Bit)
-                {
-                    long[] addresses = new long[spiderResult.Level];
-                    for (int x = 0; x < spiderResult.Level; x++)
-                    {
-                        if (x == 0)
-                        {
-                            addresses[x] = Address + spiderResult.GetOffset(x);
-                        }
-                        else
-                        {
-                            addresses[x] = spiderResult.GetOffset(x);
-                        }
-                    }
-                    var mapping64 = new LongMemoryObject(memory,null,addresses);
-                    spiderResult.Current = mapping64.ReadValue(DataType,(int)spiderResult.GetOffset(spiderResult.Level), StringLength).ToString();
-                }
-                else
-                {
-                    int[] addresses = new int[spiderResult.Level + 1];
-                    for (int x = 0; x < spiderResult.Level; x++)
-                    {
-                        addresses[x] = (int)spiderResult.GetOffset(x);
-                    }
-                    var mapping64 = new IntMemoryObject(memory, (int)Address, addresses);
-                    spiderResult.Current = mapping64.ReadValue(DataType, StringLength).ToString();
-                }
+                spiderResult.Current = spiderResult.ReadValue(memory, DataType, Is64Bit, Address, StringLength).ToString();
             }
         }
 

@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using DataSpider.Annotations;
+using DataSpider.SearchTools;
 using Microsoft.Win32;
 
 namespace DataSpider
@@ -16,17 +17,54 @@ namespace DataSpider
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private SpiderMatcher _spiderMatcher;
+        private SpiderMatch _selectedMatch;
+        private List<SpiderMatch> _matches;
+
+        public List<SpiderMatch> Matches
+        {
+            get { return _matches; }
+            set
+            {
+                if (Equals(value, _matches)) return;
+                _matches = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public SpiderMatcher SpiderMatcher
+        {
+            get { return _spiderMatcher; }
+            set
+            {
+                if (Equals(value, _spiderMatcher)) return;
+                _spiderMatcher = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public SpiderMatch SelectedMatch
+        {
+            get { return _selectedMatch; }
+            set
+            {
+                if (Equals(value, _selectedMatch)) return;
+                _selectedMatch = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<string> Processes { get; set; }
-        public ObservableCollection<SpiderResult> Matches { get; set; }
 
         public string SelectedProcessName { get; set; }
 
 
         public MainWindow()
         {
-            Matches = new ObservableCollection<SpiderResult>();
+            Matches = new List<SpiderMatch>();
+            SpiderMatcher = new SpiderMatcher();
             Processes = new ObservableCollection<string>();
             var processes = Process.GetProcesses();
             foreach (var process in processes)
@@ -95,14 +133,18 @@ namespace DataSpider
             try
             {
                 var openFileDialog = new OpenFileDialog();
+                openFileDialog.Multiselect = true;
                 if (openFileDialog.ShowDialog().GetValueOrDefault())
                 {
-                    var spiderSearch = SerializationTool.DeserializeJsonFile<SpiderSearch>(openFileDialog.FileName);
-                    var tabItem = new TabItem();
-                    tabItem.Header = spiderSearch.Name;
-                    tabItem.Content = new SpiderControl(this, tabItem, spiderSearch);
-                    tabSearches.Items.Add(tabItem);
-                    tabSearches.SelectedItem = tabItem;
+                    foreach (var fileName in openFileDialog.FileNames)
+                    {
+                        var spiderSearch = SerializationTool.DeserializeJsonFile<SpiderSearch>(fileName);
+                        var tabItem = new TabItem();
+                        tabItem.Header = spiderSearch.Name;
+                        tabItem.Content = new SpiderControl(this, tabItem, spiderSearch);
+                        tabSearches.Items.Add(tabItem);
+                        tabSearches.SelectedItem = tabItem;
+                    }
                 }
             }
             catch (Exception ex)
@@ -112,57 +154,70 @@ namespace DataSpider
 
         }
 
+
+        private void Button_ReloadValues_Click(object sender, RoutedEventArgs e)
+        {
+            var processes = Process.GetProcessesByName(SelectedProcessName);
+            if (!processes.Any())
+            {
+                MessageBox.Show("Select a process");
+                return;
+            }
+            var process = processes.First();
+            var memory = new Memory(process.Id);
+            try
+            {
+                if (SpiderMatcher != null)
+                {
+                    SpiderMatcher.ReloadValues(memory);
+                }
+            }
+            finally
+            {
+                memory.Close();
+            }
+        }
+
+
         private void Button_FindMatches_Click(object sender, RoutedEventArgs e)
         {
-            Matches.Clear();
-            var searches = new List<SpiderSearch>();
-            var tabs = tabSearches.Items;
-            foreach (var tab in tabs)
+            var processes = Process.GetProcessesByName(SelectedProcessName);
+            if (!processes.Any())
             {
-                var tabItem = tab as TabItem;
-                if (tabItem != null && tabItem.Content is SpiderControl)
-                {
-                    var spiderControl = (SpiderControl)tabItem.Content;
-                    searches.Add(spiderControl.SpiderSearch);
-                }
-            }
-            if (searches.Count == 0)
-            {
+                MessageBox.Show("Select a process");
                 return;
             }
-            if (searches.Count == 1)
+            var process = processes.First();
+            var memory = new Memory(process.Id);
+            SpiderMatcher = new SpiderMatcher();
+            try
             {
-                var firstResult = searches.First();
-                foreach (var result in firstResult.Results)
+                var searches = new List<SpiderSearch>();
+                var tabs = tabSearches.Items;
+                foreach (var tab in tabs)
                 {
-                    Matches.Add(result);
-                }
-                return;
-            }
-            var candidates = searches.First().Results;
-            for (var index = 1; index < searches.Count; index++)
-            {
-                var spiderSearch = searches[index];
-                var candidatesToRemove = new List<SpiderResult>();
-                foreach (var candidate in candidates)
-                {
-                    if (!spiderSearch.Results.Any(o => o.Level == candidate.Level && o.Offset0 == candidate.Offset0 && o.Offset1 == candidate.Offset1
-                     && o.Offset2 == candidate.Offset2 && o.Offset3 == candidate.Offset3 && o.Offset4 == candidate.Offset4 && o.Offset5 == candidate.Offset5
-                      && o.Offset6 == candidate.Offset6 && o.Offset7 == candidate.Offset7 && o.Offset8 == candidate.Offset8 && o.Offset9 == candidate.Offset9
-                      && o.Offset10 == candidate.Offset10 && o.Value == spiderSearch.StringValue))
+                    var tabItem = tab as TabItem;
+                    if (tabItem != null && tabItem.Content is SpiderControl)
                     {
-                        candidatesToRemove.Add(candidate);
+                        var spiderControl = (SpiderControl)tabItem.Content;
+                        searches.Add(spiderControl.SpiderSearch);
                     }
                 }
-                foreach (var candidateToRemove in candidatesToRemove)
-                {
-                    candidates.Remove(candidateToRemove);
-                }
+                SpiderMatcher.Match(searches, memory);
+                Matches = SpiderMatcher.Matches.Take(1000).ToList();
             }
-            foreach (var spiderResult in candidates)
+            finally
             {
-                Matches.Add(spiderResult);
+                memory.Close();
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

@@ -45,7 +45,8 @@
             <TextBox materialDesign:HintAssist.Hint="Value" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Text="{Binding Path=SpiderSearch.StringValue}"
                      Name="TextBox_Value" VerticalContentAlignment="Center" ToolTip="Value to search for" Margin="5" Width="100" >
             </TextBox>
-            <ComboBox materialDesign:HintAssist.Hint="DataType" Style="{StaticResource MaterialDesignFloatingHintComboBox}" VerticalContentAlignment="Center" ItemsSource="{Binding Path=DataTypes}" SelectedIndex="5" ToolTip="1,2,4,8 Values" Margin="5" MinWidth="40"></ComboBox>
+            <ComboBox materialDesign:HintAssist.Hint="DataType" Style="{StaticResource MaterialDesignFloatingHintComboBox}"  SelectedValue="{Binding Path=SpiderSearch.DataType}"
+                      VerticalContentAlignment="Center" ItemsSource="{Binding Path=DataTypes}" SelectedIndex="5" ToolTip="1,2,4,8 Values" Margin="5" MinWidth="40"></ComboBox>
             <TextBox materialDesign:HintAssist.Hint="Length of String" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                       Name="TextBox_StringLength" VerticalContentAlignment="Center" ToolTip="String length to read" Margin="5" Width="50" >
                 <TextBox.Text>
@@ -93,7 +94,7 @@
                 <CheckBox VerticalAlignment="Center" IsChecked="{Binding Path=SpiderSearch.Match}">Match</CheckBox>
             </StackPanel>
         </StackPanel>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Path=SpiderSearch.Results}" Grid.Column="0" Grid.ColumnSpan="3" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False">
+        <DataGrid Grid.Row="1" VirtualizingStackPanel.VirtualizationMode="Standard" ItemsSource="{Binding Path=VisibleResults}" Grid.Column="0" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Level"    Binding="{Binding Path=Level}"  />
                 <DataGridTextColumn Header="Value"    Binding="{Binding Path=Value}"  />

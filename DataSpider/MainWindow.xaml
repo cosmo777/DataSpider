@@ -19,14 +19,19 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid DataContext="{Binding ElementName=ucMain}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal">
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal">
             <Button Margin="5" Click="Button_AddTab_Click">Add Tab</Button>
             <Button Margin="5" Click="Button_RemoveTab_Click">Remove Tab</Button>
             <Button Margin="5,5,40,5" Click="Button_LoadTab_Click">Load Tab</Button>
@@ -37,21 +42,26 @@
             <TextBox materialDesign:HintAssist.Hint="Int to Hex(Int)" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Name="TextBox_Int_IntValue" Margin="5" MinWidth="75" TextChanged="TextBox_Int_IntValue_OnTextChanged"></TextBox>
             <TextBox materialDesign:HintAssist.Hint="Int to Hex(Hex)" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Name="TextBox_Int_HexValue" Margin="5" MinWidth="75"></TextBox>
         </StackPanel>
-        <TabControl Grid.Row="1" Name="tabSearches">
+        <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Name="tabSearches">
 
         </TabControl>
-        <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Height="10"></GridSplitter>
-        <Grid Grid.Row="3">
+        <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Height="10" Grid.Column="0" Grid.ColumnSpan="4" ></GridSplitter>
+        <Grid Grid.Row="3" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Button Grid.Row="0" Click="Button_FindMatches_Click">Find Matches</Button>
-            <DataGrid Grid.Row="1" ItemsSource="{Binding Path=Matches}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False">
+            <StackPanel  Orientation="Horizontal" Grid.Row="0" Grid.Column="0" >
+                <Button  Click="Button_FindMatches_Click" Margin="5">Find Matches</Button>
+                <Button  Click="Button_ReloadValues_Click" Margin="5">Reload Values</Button>
+            </StackPanel>
+            <DataGrid Grid.Column="0" Grid.Row="1" Name="DataGrid_Matcher" ItemsSource="{Binding Path=Matches}" SelectedValue="{Binding Path=SelectedMatch}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Address"  Binding="{Binding Path=Address}"  />
                     <DataGridTextColumn Header="Level"    Binding="{Binding Path=Level}"  />
-                    <DataGridTextColumn Header="HexValue" Binding="{Binding Path=HexValue}"  />
                     <DataGridTextColumn Header="Offset0"  Binding="{Binding Path=Offset0}"/>
                     <DataGridTextColumn Header="Offset1"  Binding="{Binding Path=Offset1}"/>
                     <DataGridTextColumn Header="Offset2"  Binding="{Binding Path=Offset2}"/>
@@ -65,6 +75,14 @@
                     <DataGridTextColumn Header="Offset10" Binding="{Binding Path=Offset10}"/>
                 </DataGrid.Columns>
             </DataGrid>
+            <DataGrid Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Path=SelectedMatch.Values}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}"  />
+                    <DataGridTextColumn Header="Origional" Binding="{Binding Path=Origional}"/>
+                    <DataGridTextColumn Header="Current" Binding="{Binding Path=Current}"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
+
     </Grid>
 </Window>

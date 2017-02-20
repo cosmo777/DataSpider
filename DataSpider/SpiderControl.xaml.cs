@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using DataSpider.Annotations;
+using DataSpider.Properties;
+using DataSpider.SearchTools;
 using Microsoft.Win32;
 
 namespace DataSpider
@@ -23,7 +25,18 @@ namespace DataSpider
         private readonly MainWindow _mainWindow;
         private readonly TabItem _tabItem;
         private SpiderSearch _spiderSearch;
+        private List<SpiderResult> _visibleResults;
 
+        public List<SpiderResult> VisibleResults
+        {
+            get { return _visibleResults; }
+            set
+            {
+                if (Equals(value, _visibleResults)) return;
+                _visibleResults = value;
+                OnPropertyChanged();
+            }
+        }
 
         public SpiderSearch SpiderSearch
         {
@@ -42,6 +55,7 @@ namespace DataSpider
         public SpiderControl(MainWindow mainWindow, TabItem tabItem, SpiderSearch search) : this(mainWindow, tabItem)
         {
             SpiderSearch = search;
+            VisibleResults = SpiderSearch.Results.Take(1000).ToList();
         }
 
         public SpiderControl(MainWindow mainWindow, TabItem tabItem)
@@ -143,7 +157,7 @@ namespace DataSpider
                     int currentLevel = 0;
                     var currentResult = new SpiderResult() { Level = currentLevel };
                     currentResult.Offset0 = offset;
-                    currentResult.Address0 = addressToCheck;
+                    //currentResult.Address0 = addressToCheck;
                     var match = CheckForMatchValue(allData, offset, SpiderSearch);
                     if (match != null)
                     {
@@ -176,6 +190,7 @@ namespace DataSpider
                 {
                     SpiderSearch.Results.Add(spiderResult);
                 }
+                VisibleResults = SpiderSearch.Results.Take(1000).ToList();
             }
             finally
             {
