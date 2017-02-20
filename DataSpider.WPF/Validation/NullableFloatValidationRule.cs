@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Windows.Controls;
 
-namespace Spartan.WPF.Validation
+namespace DataSpider.WPF.Validation
 {
     public class NullableFloatValidationRule : ValidationRule
     {

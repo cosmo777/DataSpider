@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Spartan.WPF.ValueConvertor
+namespace DataSpider.WPF.ValueConvertor
 {
     public class NullableValueConvertor : BaseValueConvertor, IValueConverter
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Spartan.WPF.ValueConvertor
+namespace DataSpider.WPF.ValueConvertor
 {
     public abstract class BaseValueConvertor
     {
