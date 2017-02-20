@@ -102,6 +102,11 @@ namespace DataSpider
             return ReadMem(addr, length);
         }
 
+        public byte[] ReadBytes(int addr, int length)
+        {
+            return ReadMem(addr, length);
+        }
+
         public void Close()
         {
             if (!_closed)
@@ -109,6 +114,13 @@ namespace DataSpider
                 _closed = true;
                 CloseHandle(_procHandle);
             }
+        }
+
+        private byte[] ReadMem(int addr, int size)
+        {
+            var array = new byte[size];
+            ReadProcessMemory(_procHandle, (IntPtr)addr, array);
+            return array;
         }
 
         private byte[] ReadMem(long addr, int size)
