@@ -94,7 +94,7 @@ namespace DataSpider
             InitializeComponent();
         }
 
-        private void Button_Seach_Click(object sender, RoutedEventArgs e)
+        public void Button_Seach_Click(object sender, RoutedEventArgs e)
         {
             var processes = Process.GetProcessesByName(_mainWindow.SelectedProcessName);
             if (!processes.Any())
@@ -190,7 +190,7 @@ namespace DataSpider
                 {
                     SpiderSearch.Results.Add(spiderResult);
                 }
-                VisibleResults = SpiderSearch.Results.Take(1000).ToList();
+                VisibleResults = SpiderSearch.Results.Take(200).ToList();
             }
             finally
             {
@@ -335,7 +335,7 @@ namespace DataSpider
             }
         }
 
-        private void Button_ReloadValues_Click(object sender, RoutedEventArgs e)
+        public void Button_ReloadValues_Click(object sender, RoutedEventArgs e)
         {
             var processes = Process.GetProcessesByName(_mainWindow.SelectedProcessName);
             if (!processes.Any())
@@ -347,12 +347,48 @@ namespace DataSpider
             var memory = new Memory(process.Id);
             try
             {
+                SpiderSearch.Address = long.Parse(TextBox_Address.Text);
                 SpiderSearch.Reload(memory);
+                foreach (var visibleResult in VisibleResults)
+                {
+                    visibleResult.CallPropertyChanged("Current");
+                    visibleResult.CallPropertyChanged("Value");
+                }
             }
             finally
             {
                 memory.Close();
             }
+        }
+
+        public void Button_ReFilterValues_Click(object sender, RoutedEventArgs e)
+        {
+            var processes = Process.GetProcessesByName(_mainWindow.SelectedProcessName);
+            if (!processes.Any())
+            {
+                MessageBox.Show("Select a process");
+                return;
+            }
+            var process = processes.First();
+            var memory = new Memory(process.Id);
+            try
+            {
+                SpiderSearch.Address = long.Parse(TextBox_Address.Text);
+                SpiderSearch.Reload(memory);
+
+            }
+            finally
+            {
+                memory.Close();
+            }
+            var results = SpiderSearch.Results.Where(o => TextBox_Value.Text != o.Current).ToList();
+            var dict = SpiderSearch.Results.ToDictionary(o => o.Id, o => o);
+            foreach (var spiderResult in results)
+            {
+                dict.Remove(spiderResult.Id);
+            }
+            SpiderSearch.Results = dict.Values.ToList();
+            VisibleResults = SpiderSearch.Results.Take(200).ToList();
         }
 
         private void TextBox_TabName_OnTextChanged(object sender, TextChangedEventArgs e)
@@ -367,6 +403,8 @@ namespace DataSpider
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+
     }
 
 

@@ -1,18 +1,21 @@
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using DataSpider.Annotations;
 using DataSpider.MemoryTools;
 
 namespace DataSpider.SearchTools
 {
-    public class OffsetObject
+    public class OffsetObject : INotifyPropertyChanged
     {
+        private static long _id;
         public OffsetObject()
         {
-
+            Id = Interlocked.Increment(ref _id);
         }
 
-        public OffsetObject(OffsetObject spiderResult)
+        public OffsetObject(OffsetObject spiderResult):this()
         {
             if (spiderResult != null)
             {
@@ -71,7 +74,7 @@ namespace DataSpider.SearchTools
                     break;
             }
         }
-
+        public long Id { get; set; }
         public int Level { get; set; }
         public int Offset0 { get; set; }
         public int Offset1 { get; set; }
@@ -115,14 +118,6 @@ namespace DataSpider.SearchTools
             return 0;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         public object ReadValue(Memory memory, DataType dataType, bool is64Bit, long address, int stringLength=200)
         {
             if (is64Bit)
@@ -159,6 +154,19 @@ namespace DataSpider.SearchTools
                 var mapping64 = new IntMemoryObject(memory, null, addresses);
                 return mapping64.ReadValue(dataType, (int)GetOffset(Level), stringLength).ToString();
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public virtual void CallPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

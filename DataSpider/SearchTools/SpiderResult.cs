@@ -2,7 +2,7 @@
 
 namespace DataSpider.SearchTools
 {
-    public class SpiderResult : OffsetObject, INotifyPropertyChanged
+    public class SpiderResult : OffsetObject
     {
         private string _current;
 
@@ -15,18 +15,9 @@ namespace DataSpider.SearchTools
         {
 
         }
-        
 
-        public string Current
-        {
-            get { return _current; }
-            set
-            {
-                if (value == _current) return;
-                _current = value;
-                OnPropertyChanged();
-            }
-        }
+
+        public string Current { get; set; }
 
         public string Value { get; set; }
     }

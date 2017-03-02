@@ -28,6 +28,7 @@
             <Button Margin="5" Padding="5" Click="Button_Save_Click">Save</Button>
             <Button Margin="5" Padding="5" Click="Button_Load_Click">Load</Button>
             <Button Margin="5" Padding="5" Click="Button_ReloadValues_Click">Reload</Button>
+            <Button Margin="5" Padding="5" Click="Button_ReFilterValues_Click">ReFilter</Button>
             <Button Margin="15 5 5 5" Padding="15 0 15 0 " Click="Button_Seach_Click">Search</Button>
             <TextBox materialDesign:HintAssist.Hint="Tab Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Text="{Binding Path=SpiderSearch.Name}"
                      Name="TextBox_TabName" VerticalContentAlignment="Center" ToolTip="Start address for search" Margin="5" Width="100" TextChanged="TextBox_TabName_OnTextChanged">

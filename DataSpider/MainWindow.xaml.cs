@@ -6,11 +6,16 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using DataSpider.Annotations;
 using DataSpider.SearchTools;
-using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 
 namespace DataSpider
 {
@@ -76,6 +81,50 @@ namespace DataSpider
             {
                 ComboBox_Processes.SelectedIndex = 0;
             }
+
+            var task = Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(1);
+                    if (InputSpan.GetKeys(Keys.F2))
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var content = tabSearches.SelectedContent as SpiderControl;
+                            if (content != null)
+                            {
+                                content.Button_ReloadValues_Click(null, null);
+                                Thread.Sleep(1000);
+                            }
+                        });
+                    }
+                    if (InputSpan.GetKeys(Keys.F3))
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var content = tabSearches.SelectedContent as SpiderControl;
+                            if (content != null)
+                            {
+                                content.Button_ReFilterValues_Click(null, null);
+                                Thread.Sleep(1000);
+                            }
+                        });
+                    }
+                    if (InputSpan.GetKeys(Keys.F4))
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var content = tabSearches.SelectedContent as SpiderControl;
+                            if (content != null)
+                            {
+                                content.Button_Seach_Click(null, null);
+                                Thread.Sleep(1000);
+                            }
+                        });
+                    }
+                }
+            });
         }
 
         private void TextBox_ProcessFilter_TextChanged(object sender, TextChangedEventArgs e)
@@ -218,6 +267,35 @@ namespace DataSpider
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+
+    public static class InputSpan
+    {
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int CallNextHookEx(int idHook, int nCode, int wParam, IntPtr lParam);
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall, SetLastError = true)]
+        public static extern int UnhookWindowsHookEx(int idHook);
+        [DllImport("user32.dll")]
+        public static extern short GetAsyncKeyState(UInt16 virtualKeyCode);
+        public static bool GetKeys(Keys keyData)
+        {
+            var val = GetAsyncKeyState((ushort)keyData);
+            return val < 0;
+        }
+
+        public static bool GetMouse(MouseButton mouseButton)
+        {
+            var val = GetAsyncKeyState((ushort)mouseButton);
+            return val < 0;
+        }
+
+        public enum MouseButton
+        {
+            VK_MBUTTON = 0x04,//middle mouse button
+            VK_LBUTTON = 0x01,//left mouse button
+            VK_RBUTTON = 0x02//right mouse button
         }
     }
 
